@@ -62,67 +62,71 @@ class Cangjie < Formula
     resource("cangjie_tools").stage buildpath/"cangjie_tools"
     resource("cangjie_stdx").stage buildpath/"cangjie_stdx"
 
-    workspace = buildpath
-
     # --- compiler ---
-    Dir.chdir("#{workspace}/cangjie_compiler")
+    Dir.chdir("#{buildpath}/cangjie_compiler") do
+      # apply patch -- this should be temporary
+      system "git", "remote", "add", "compiler_fix", "https://gitcode.com/claudio_/cangjie_compiler.git"
+      system "git", "fetch", "compiler_fix"
+      system "git", "cherry-pick", "092bef1a02f066ff2786d12f04a16063b30cca3d"
+      system "git", "cherry-pick", "890edb3ba3df893d879549c3d82ea9d9d620416b"
 
-    # apply patch -- this should be temporary
-    system "git", "remote", "add", "compiler_fix", "https://gitcode.com/claudio_/cangjie_compiler.git"
-    system "git", "fetch", "compiler_fix"
-    system "git", "cherry-pick", "092bef1a02f066ff2786d12f04a16063b30cca3d"
-    system "git", "cherry-pick", "890edb3ba3df893d879549c3d82ea9d9d620416b"
-
-    system "python3", "build.py", "clean"
-    # TODO: build with --build-cjdb
-    # system "python3", "build.py", "build", "-t", "release", "--no-tests", "--build-cjdb"
-    system "python3", "build.py", "build", "-t", "release", "--no-tests"
-    system "python3", "build.py", "install"
-
-    # --- runtime ---
-    Dir.chdir("#{workspace}/cangjie_runtime/runtime")
-
-    # apply patch -- this should be temporary
-    system "git", "remote", "add", "runtime_fix", "https://gitcode.com/magnusmorton/cangjie_runtime.git"
-    system "git", "fetch", "runtime_fix"
-    system "git", "cherry-pick", "6fdd41f22576345e45c4c7b507d55593d556ed81"
-    system "git", "remote", "add", "runtime_fix_2", "https://gitcode.com/claudio_/cangjie_runtime.git"
-    system "git", "fetch", "runtime_fix_2"
-    system "git", "cherry-pick", "754b3aa9575626a56b46a400dd7c013430028895"
-
-    system "python3", "build.py", "clean"
-    system "python3", "build.py", "build", "-t", "release", "-v", cangjie_version
-    system "python3", "build.py", "install"
-    cp_r "#{workspace}/cangjie_runtime/runtime/output/common/darwin_release_#{arch}/lib",
-         "#{workspace}/cangjie_compiler/output"
-    cp_r "#{workspace}/cangjie_runtime/runtime/output/common/darwin_release_#{arch}/runtime",
-         "#{workspace}/cangjie_compiler/output"
-
-    # --- std ---
-    Dir.chdir("#{workspace}/cangjie_runtime/stdlib")
-    system "python3", "build.py", "clean"
-    system "bash", "-c", <<~EOS
-      source #{workspace}/cangjie_compiler/output/envsetup.sh
-      python3 build.py build -t release --target-lib=#{workspace}/cangjie_runtime/runtime/output --target-lib=#{openssl_path}
-    EOS
-    system "python3", "build.py", "install"
-    cp_r Dir.glob("#{workspace}/cangjie_runtime/stdlib/output/*"), "#{workspace}/cangjie_compiler/output/"
-
-    # --- stdx ---
-    Dir.chdir("#{workspace}/cangjie_stdx")
-    system "python3", "build.py", "clean"
-    system "bash", "-c", <<~EOS
-      source #{workspace}/cangjie_compiler/output/envsetup.sh
-      python3 build.py build -t release --include=#{workspace}/cangjie_compiler/include --target-lib=#{openssl_path}
-    EOS
-    system "python3", "build.py", "install"
-
-    # Add CANGJIE_STDX_PATH to the envsetup.h so that stdx is also visible to the user
-    File.open("#{workspace}/cangjie_compiler/output/envsetup.sh", "a") do |f|
-      f.puts "export CANGJIE_STDX_PATH=#{workspace}/cangjie_stdx/target/darwin_${ARCH}_cjnative/static/stdx"
+      system "python3", "build.py", "clean"
+      # TODO: build with --build-cjdb
+      # system "python3", "build.py", "build", "-t", "release", "--no-tests", "--build-cjdb"
+      system "python3", "build.py", "build", "-t", "release", "--no-tests"
+      system "python3", "build.py", "install"
     end
 
-    prefix.install "#{workspace}/cangjie_compiler/output"
+    # --- runtime ---
+    Dir.chdir("#{buildpath}/cangjie_runtime/runtime") do
+      # apply patch -- this should be temporary
+      system "git", "remote", "add", "runtime_fix", "https://gitcode.com/magnusmorton/cangjie_runtime.git"
+      system "git", "fetch", "runtime_fix"
+      system "git", "cherry-pick", "6fdd41f22576345e45c4c7b507d55593d556ed81"
+      system "git", "remote", "add", "runtime_fix_2", "https://gitcode.com/claudio_/cangjie_runtime.git"
+      system "git", "fetch", "runtime_fix_2"
+      system "git", "cherry-pick", "754b3aa9575626a56b46a400dd7c013430028895"
+
+      system "python3", "build.py", "clean"
+      system "python3", "build.py", "build", "-t", "release", "-v", cangjie_version
+      system "python3", "build.py", "install"
+      cp_r "#{buildpath}/cangjie_runtime/runtime/output/common/darwin_release_#{arch}/lib",
+          "#{buildpath}/cangjie_compiler/output"
+      cp_r "#{buildpath}/cangjie_runtime/runtime/output/common/darwin_release_#{arch}/runtime",
+          "#{buildpath}/cangjie_compiler/output"
+    end
+
+    # homebrew will ned to replace @rpath
+    ENV.append "LDFLAGS", " "
+
+    # --- std ---
+    Dir.chdir("#{buildpath}/cangjie_runtime/stdlib") do
+      system "python3", "build.py", "clean"
+      system "bash", "-c", <<~EOS
+        source #{buildpath}/cangjie_compiler/output/envsetup.sh
+        python3 build.py build -t release --target-lib=#{buildpath}/cangjie_runtime/runtime/output --target-lib=#{openssl_path}
+      EOS
+      system "python3", "build.py", "install"
+      cp_r Dir.glob("#{buildpath}/cangjie_runtime/stdlib/output/*"), "#{buildpath}/cangjie_compiler/output/"
+    end
+
+    # --- stdx ---
+    Dir.chdir("#{buildpath}/cangjie_stdx") do
+      system "python3", "build.py", "clean"
+      system "bash", "-c", <<~EOS
+        source #{buildpath}/cangjie_compiler/output/envsetup.sh
+        python3 build.py build -t release --include=#{buildpath}/cangjie_compiler/include --target-lib=#{openssl_path}
+      EOS
+      system "python3", "build.py", "install"
+    end
+
+    # Add CANGJIE_STDX_PATH to the envsetup.h so that stdx is also visible to the user
+    File.open("#{buildpath}/cangjie_compiler/output/envsetup.sh", "a") do |f|
+      f.puts "export CANGJIE_STDX_PATH=${CANGJIE_HOME}/cangjie_stdx/static/stdx"
+    end
+
+    prefix.install "#{buildpath}/cangjie_compiler/output"
+    (prefix/"output"/"cangjie_stdx").install Dir["#{buildpath}/cangjie_stdx/target/darwin_#{arch}_cjnative/*"]
   end
 
   def caveats
