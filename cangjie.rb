@@ -86,6 +86,7 @@ class Cangjie < Formula
       system "git", "remote", "add", "runtime_fix_2", "https://gitcode.com/claudio_/cangjie_runtime.git"
       system "git", "fetch", "runtime_fix_2"
       system "git", "cherry-pick", "754b3aa9575626a56b46a400dd7c013430028895"
+      system "git", "cherry-pick", "ff82ed169b4d109ac83c3af960270b484ed8aa1f"
 
       system "python3", "build.py", "clean"
       system "python3", "build.py", "build", "-t", "release", "-v", cangjie_version
@@ -112,6 +113,10 @@ class Cangjie < Formula
 
     # --- stdx ---
     Dir.chdir("#{buildpath}/cangjie_stdx") do
+      system "git", "remote", "add", "stdx_fix", "https://gitcode.com/claudio_/cangjie_stdx.git"
+      system "git", "fetch", "stdx_fix"
+      system "git", "cherry-pick", "22fc2a1a59c51a60597aa25a42a78ccf25e3da6a"
+
       system "python3", "build.py", "clean"
       system "bash", "-c", <<~EOS
         source #{buildpath}/cangjie_compiler/output/envsetup.sh
