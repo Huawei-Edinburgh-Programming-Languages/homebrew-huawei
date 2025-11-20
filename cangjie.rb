@@ -12,6 +12,7 @@ class Cangjie < Formula
   depends_on "python@3.14" => :build
   depends_on "gnu-tar"
   depends_on "googletest"
+  depends_on :macos
   depends_on "openssl@3"
 
   uses_from_macos "bison"
