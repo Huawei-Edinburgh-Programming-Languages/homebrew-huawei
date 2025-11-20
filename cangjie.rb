@@ -23,11 +23,6 @@ class Cangjie < Formula
       revision: "7cfb8a627ccbc5a7dacee022ada06d074375aaf2",
       tag:      "v1.0.5"
   end
-  resource "cangjie_tools" do
-    url "https://gitcode.com/Cangjie/cangjie_tools.git",
-      revision: "aa7f0fb3fb2e6c5e1596741eb5014cdb329be581",
-      tag:      "v1.0.5"
-  end
   resource "cangjie_stdx" do
     url "https://gitcode.com/Cangjie/cangjie_stdx.git",
       revision: "69976a1c5ee1f720a6457a0310d9eb7c5a96eba8",
@@ -59,7 +54,6 @@ class Cangjie < Formula
     end
 
     resource("cangjie_runtime").stage buildpath/"cangjie_runtime"
-    resource("cangjie_tools").stage buildpath/"cangjie_tools"
     resource("cangjie_stdx").stage buildpath/"cangjie_stdx"
 
     # --- compiler ---
