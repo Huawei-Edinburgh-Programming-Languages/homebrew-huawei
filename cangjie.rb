@@ -2,7 +2,7 @@ class Cangjie < Formula
   desc "Ecosystem for the Cangjie compiler"
   homepage "https://cangjie-lang.cn/en"
   url "https://gitcode.com/Cangjie/cangjie_compiler.git",
-    revision: "dc1f7a85715ffaa0142b250a8f0c1b4e5f0dab52",
+    revision: "2ac3df1817ddd8804461a0c74a3df558fa913c78",
     tag:      "v1.0.5"
   license "Apache-2.0"
 
@@ -21,12 +21,12 @@ class Cangjie < Formula
   # Additional dependency
   resource "cangjie_runtime" do
     url "https://gitcode.com/Cangjie/cangjie_runtime.git",
-      revision: "7cfb8a627ccbc5a7dacee022ada06d074375aaf2",
+      revision: "f2e0a720b8ffe15839d0beff1ae91bd65ee0b386",
       tag:      "v1.0.5"
   end
   resource "cangjie_stdx" do
     url "https://gitcode.com/Cangjie/cangjie_stdx.git",
-      revision: "69976a1c5ee1f720a6457a0310d9eb7c5a96eba8",
+      revision: "a1e48f9540dd3e6e4d401063cbda8c8b8846b1c1",
       tag:      "v1.0.5.1"
   end
 
