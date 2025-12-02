@@ -27,14 +27,14 @@ class Cangjie < Formula
   resource "cangjie_stdx" do
     url "https://gitcode.com/Cangjie/cangjie_stdx.git",
       revision: "a1e48f9540dd3e6e4d401063cbda8c8b8846b1c1",
-      tag:      "v1.0.5.1"
+      tag:      "v1.0.5"
   end
 
   def install
     arch = Hardware::CPU.arm? ? "aarch64" : "x86_64"
     sdk_name = Hardware::CPU.arm? ? "mac-aarch64" : "mac-x64"
-    cangjie_version="1.5.0"
-    stdx_version="1.5.0.1"
+    cangjie_version="1.0.5"
+    stdx_version="1.0.5"
     ENV["ARCH"] = arch
     ENV["SDK_NAME"] = sdk_name
     ENV["CANGJIE_VERSION"] = cangjie_version
