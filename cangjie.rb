@@ -30,6 +30,12 @@ class Cangjie < Formula
       tag:      "v1.0.5"
   end
 
+  resource "llvm_project" do
+    url "https://gitcode.com/Cangjie/llvm-project.git",
+    revision: "bd0f7a23a7a494f7e013f70a5c986730bd6f562b",
+    tag: "v1.0.5"
+  end
+
   def install
     arch = Hardware::CPU.arm? ? "aarch64" : "x86_64"
     sdk_name = Hardware::CPU.arm? ? "mac-aarch64" : "mac-x64"
@@ -53,6 +59,8 @@ class Cangjie < Formula
 
       mv child, buildpath/"cangjie_compiler"
     end
+
+    resource("llvm_project").stage buildpath/"third_party"
 
     resource("cangjie_runtime").stage buildpath/"cangjie_runtime"
     resource("cangjie_stdx").stage buildpath/"cangjie_stdx"
