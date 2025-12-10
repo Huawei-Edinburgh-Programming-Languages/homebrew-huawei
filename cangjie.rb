@@ -60,7 +60,7 @@ class Cangjie < Formula
       mv child, buildpath/"cangjie_compiler"
     end
 
-    resource("llvm_project").stage buildpath/"third_party"
+    resource("llvm_project").stage buildpath/"cangjie_compiler/third_party/llvm-project"
 
     resource("cangjie_runtime").stage buildpath/"cangjie_runtime"
     resource("cangjie_stdx").stage buildpath/"cangjie_stdx"
